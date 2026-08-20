@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Borrowed Books (Active)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        h1 {
+            color: #5a67d8;
+            text-align: center;
+            margin-top: 60px;
+        }
+        .search-bar {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .search-bar input[type="text"] {
+            padding: 8px;
+            width: 300px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .search-bar button {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            background-color: #5a67d8;
+            color: white;
+            cursor: pointer;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #999;
+            padding: 12px;
+            text-align: center;
+        }
+        th {
+            background-color: #5a67d8;
+            color: white;
+        }
+        a.button {
+            display: inline-block;
+            margin-top: 0;
+            padding: 10px 20px;
+            background-color: #5a67d8;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            position: fixed;
+            top: 10px;
+            left: 20px;
+            z-index: 1000;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            transition: background-color 0.3s ease;
+        }
+        a.button:hover {
+            background-color: #434190;
+        }
+        /* Flash messages style */
+        .flashes {
+            list-style: none;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            background-color: #e0f7fa;
+            border: 1px solid #b2ebf2;
+            color: #007bb5;
+            text-align: center;
+        }
+        .flashes li {
+            padding: 5px 0;
+        }
+        .flashes li.error {
+            background-color: #ffe0b2;
+            border: 1px solid #ffcc80;
+            color: #e65100;
+        }
+    </style>
+</head>
+<body>
+    <a href="{{ url_for('admin_panel') }}" class="button">Go Back to Admin Panel</a>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul class="flashes">
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <h1>Borrowed Books (Active)</h1>
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="Search by Reg No or Email or Book Name" onkeyup="filterTable()">
+        <button onclick="clearSearch()">Clear</button>
+    </div>
+    <table id="borrowedBooksTable">
+        <tr>
+            <th>Reg No</th>
+            <th>Email</th>
+            <th>Book Name</th>
+            <th>Borrow Date</th>
+            <th>Due Date</th>
+            <th>Actions</th>
+        </tr>
+        {% for book in borrowed_books %}
+        <tr>
+            <td>{{ book.regno }}</td>
+            <td>{{ students_dict.get(book.regno, 'N/A') }}</td>
+            <td>{{ book.book_name }}</td>
+            <td>{{ book.borrow_date.strftime('%Y-%m-%d') }}</td>
+            <td>{{ book.due_date.strftime('%Y-%m-%d') }}</td>
+            <td>
+                <a href="{{ url_for('edit_due', borrowed_book_id=book.id) }}"><button>Edit Due</button></a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    
+    <script>
+        function filterTable() {
+            var input, filter, table, tr, td, i, j, txtValue, shouldShow;
+            input = document.getElementById("searchInput");
+            filter = input.value.toLowerCase();
+            table = document.getElementById("borrowedBooksTable");
+            tr = table.getElementsByTagName("tr");
+
+            for (i = 1; i < tr.length; i++) {
+                tr[i].style.display = "none";
+                td = tr[i].getElementsByTagName("td");
+                shouldShow = false;
+                for (j = 0; j < td.length - 1; j++) {
+                    if (td[j]) {
+                        txtValue = td[j].textContent || td[j].innerText;
+                        if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                            shouldShow = true;
+                            break;
+                        }
+                    }
+                }
+                if (shouldShow) {
+                    tr[i].style.display = "";
+                }
+            }
+        }
+        function clearSearch() {
+            document.getElementById("searchInput").value = "";
+            filterTable();
+        }
+    </script>
+</body>
+</html>

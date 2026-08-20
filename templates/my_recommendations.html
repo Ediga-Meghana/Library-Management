@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% set background = 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b' %}
+{% block content %}
+<header class="text-center py-4 bg-primary text-white">
+    <h1>My Recommendations</h1>
+    <p class="lead">Books recommended for you based on your borrowing history.</p>
+</header>
+<main class="container">
+    {% if recommended_books %}
+    <div class="mt-5">
+        <h3>📚 Recommended for You</h3>
+        <div class="row">
+            {% for book in recommended_books %}
+            <div class="col-md-6 col-lg-4 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ book.title }}</h5>
+                        <p class="card-text">by {{ book.author }}</p>
+                        <p class="card-text">Available copies: {{ book.available_copies }}</p>
+                        {% if book.available_copies > 0 and can_borrow %}
+                        <a href="{{ url_for('borrow_book', book_id=book.id) }}" class="btn btn-success btn-sm">Borrow</a>
+                        {% elif not can_borrow %}
+                        <button class="btn btn-secondary btn-sm" disabled>Cannot Borrow</button>
+                        {% else %}
+                        <a href="{{ url_for('reserve_book', book_id=book.id) }}" class="btn btn-warning btn-sm">Reserve</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center mt-5">
+        <p class="lead">No recommendations available at the moment. Start borrowing books to get personalized recommendations!</p>
+    </div>
+    {% endif %}
+
+    <div class="text-center mt-4">
+        <a href="{{ url_for('student_dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+</main>
+{% endblock %}

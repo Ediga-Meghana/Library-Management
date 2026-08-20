@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container text-center">
+    <h1 class="mb-4">📊 Library Statistics</h1>
+    <div class="chart-container">
+        <canvas id="statsChart"></canvas>
+    </div>
+    <a href="{{ url_for('admin_panel') }}" class="btn btn-secondary">Go Back to Admin Panel</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    async function fetchStats() {
+        const response = await fetch('{{ url_for("admin_stats") }}');
+        const data = await response.json();
+        return data;
+    }
+
+    async function renderChart() {
+        const data = await fetchStats();
+        const ctx = document.getElementById('statsChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Total Books', 'Borrowed Books', 'Overdue Books', 'Registered Students'],
+                datasets: [{
+                    label: 'Count',
+                    data: [data.total_books, data.total_borrowed, data.total_overdue, data.total_students],
+                    backgroundColor: [
+                        'rgba(230, 126, 34, 0.7)',
+                        'rgba(52, 152, 219, 0.7)',
+                        'rgba(231, 76, 60, 0.7)',
+                        'rgba(46, 204, 113, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgba(230, 126, 34, 1)',
+                        'rgba(52, 152, 219, 1)',
+                        'rgba(231, 76, 60, 1)',
+                        'rgba(46, 204, 113, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        precision: 0
+                    }
+                },
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    }
+
+    renderChart();
+</script>
+{% endblock %}

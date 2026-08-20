@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Library</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center center;
+        }
+    </style>
+</head>
+<body{% if background %} style="background-image: url('{{ background }}');"{% endif %}>
+    <nav class="navbar">
+        <div class="nav-content-wrapper">
+            <a class="navbar-brand" href="{{ url_for('index') }}">📚 Smart Library</a>
+            <div class="nav-links-and-info">
+                {% if session.get('regno') %}
+                    <span class="navbar-text">Logged in as: {{ session.get('regno') }}</span>
+                    <a href="{{ url_for('my_fines') }}" class="btn btn-outline-light nav-btn-spacing">All Fines</a>
+                    <a href="{{ url_for('logout') }}" class="btn btn-outline-light nav-btn-spacing">Logout</a>
+                {% elif session.get('admin_email') %}
+                    <span class="navbar-text">Admin: {{ session.get('admin_email') }}</span>
+                    <a href="{{ url_for('logout') }}" class="btn btn-outline-light nav-btn-spacing">Logout</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul class="flashes">
+          {% for category, message in messages %}
+            <li class="{{ category }}">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <script>
+      // Auto-hide flash messages after 3 seconds
+      window.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function() {
+          var flashes = document.querySelector('.flashes');
+          if (flashes) {
+            flashes.style.display = 'none';
+          }
+        }, 3000);
+      });
+    </script>
+
+    {% block content %}{% endblock %}
+
+    <footer>
+        &copy; {{ now.year }} Smart Library System. All rights reserved.
+    </footer>
+</body>
+</html>

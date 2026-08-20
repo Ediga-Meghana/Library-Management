@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h1 class="text-center mb-4">📚 Search & Borrow Books</h1>
+    <p class="text-center">Logged in as: {{ regno }}</p>
+
+    <!-- Advanced Search Filters -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-filter me-2"></i>Advanced Search Filters
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="title-filter" class="form-label fw-bold">
+                        <i class="fas fa-book me-1"></i>Title
+                    </label>
+                    <input type="text" id="title-filter" class="form-control form-control-lg" placeholder="Search by title...">
+                </div>
+                <div class="col-md-6">
+                    <label for="author-filter" class="form-label fw-bold">
+                        <i class="fas fa-user-edit me-1"></i>Author
+                    </label>
+                    <input type="text" id="author-filter" class="form-control form-control-lg" placeholder="Search by author...">
+                </div>
+                <div class="col-md-6">
+                    <label for="sort-by" class="form-label fw-bold">
+                        <i class="fas fa-sort-amount-down me-1"></i>Sort By
+                    </label>
+                    <select id="sort-by" class="form-control form-control-lg">
+                        <option value="title">Title (A-Z)</option>
+                        <option value="-title">Title (Z-A)</option>
+                        <option value="author">Author (A-Z)</option>
+                        <option value="-author">Author (Z-A)</option>
+                        <option value="available_copies">Available Copies (High to Low)</option>
+                        <option value="-available_copies">Available Copies (Low to High)</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="availability-filter" class="form-label fw-bold">
+                        <i class="fas fa-check-circle me-1"></i>Availability
+                    </label>
+                    <select id="availability-filter" class="form-control form-control-lg">
+                        <option value="all">All Books</option>
+                        <option value="available">Available Only</option>
+                        <option value="unavailable">Unavailable Only</option>
+                    </select>
+                </div>
+            </div>
+            <div class="text-center mt-4">
+                <button id="apply-filters" class="btn btn-primary btn-lg px-4 py-2 me-2">
+                    <i class="fas fa-search me-2"></i>Apply Filters
+                </button>
+                <button id="clear-filters" class="btn btn-secondary btn-lg px-4 py-2">
+                    <i class="fas fa-times-circle me-2"></i>Clear Filters
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="search-results">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Available Copies</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="book-list">
+                {% for book in books %}
+                <tr>
+                    <td>{{ book.title }}</td>
+                    <td><a href="#" class="author-link" data-author="{{ book.author }}">{{ book.author }}</a></td>
+                    <td>{{ book.available_copies }}</td>
+                    <td>
+                        {% if book.available_copies > 0 %}
+                        <a href="{{ url_for('borrow_book', book_id=book.id) }}" class="btn btn-success btn-sm">Borrow</a>
+                        {% else %}
+                        <a href="{{ url_for('reserve_book', book_id=book.id) }}" class="btn btn-warning btn-sm">Reserve</a>
+                        {% endif %}
+                        <a href="{{ url_for('add_to_wishlist', book_id=book.id) }}" class="btn btn-info btn-sm">Add to Wishlist</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div id="author-books-section" class="mt-5" style="display: none;">
+        <h3>More Books by <span id="author-name"></span></h3>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Available Copies</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="author-books-list">
+            </tbody>
+        </table>
+    </div>
+
+    <div class="text-center mt-4">
+        <a href="{{ url_for('student_dashboard') }}" class="btn btn-secondary">⬅️ Back to Dashboard</a>
+    </div>
+</div>
+
+<script>
+    const searchInput = document.getElementById("search");
+    const bookList = document.getElementById("book-list");
+    const authorBooksSection = document.getElementById("author-books-section");
+    const authorBooksList = document.getElementById("author-books-list");
+    const authorName = document.getElementById("author-name");
+    const titleFilter = document.getElementById("title-filter");
+    const authorFilter = document.getElementById("author-filter");
+    const sortBy = document.getElementById("sort-by");
+    const availabilityFilter = document.getElementById("availability-filter");
+    const applyFiltersBtn = document.getElementById("apply-filters");
+    const clearFiltersBtn = document.getElementById("clear-filters");
+
+    // Apply filters when button is clicked
+    applyFiltersBtn.addEventListener("click", function() {
+        const title = titleFilter.value;
+        const author = authorFilter.value;
+        const sort = sortBy.value;
+        const availability = availabilityFilter.value;
+        
+        // Build query string
+        let query = "";
+        if (title) query += "title=" + encodeURIComponent(title) + "&";
+        if (author) query += "author=" + encodeURIComponent(author) + "&";
+        if (sort) query += "sort=" + encodeURIComponent(sort) + "&";
+        if (availability && availability !== "all") query += "availability=" + encodeURIComponent(availability) + "&";
+        
+        // Remove trailing &
+        if (query.endsWith("&")) query = query.slice(0, -1);
+        
+        fetch(`/search_api?${query}`)
+        .then(res => res.json())
+        .then(data => {
+            let rows = "";
+            if (data.books.length === 0) {
+                rows = '<tr><td colspan="4" class="text-center">No books found matching your filters.</td></tr>';
+            } else {
+                data.books.forEach(book => {
+                    const borrowUrl = "/borrow_book/" + book.id;
+                    const reserveUrl = "/reserve_book/" + book.id;
+                    const wishlistUrl = "/add_to_wishlist/" + book.id;
+                    rows += `<tr>
+                        <td>${book.title}</td>
+                        <td><a href="#" class="author-link" data-author="${book.author}">${book.author}</a></td>
+                        <td>${book.available_copies}</td>
+                        <td>${book.available_copies > 0
+                            ? `<a href="${borrowUrl}" class="btn btn-success btn-sm">Borrow</a>`
+                            : `<a href="${reserveUrl}" class="btn btn-warning btn-sm">Reserve</a>`}
+                            <a href="${wishlistUrl}" class="btn btn-info btn-sm">Add to Wishlist</a></td>
+                    </tr>`;
+                });
+            }
+            bookList.innerHTML = rows;
+            
+            // Hide author books section when searching
+            authorBooksSection.style.display = 'none';
+        })
+        .catch(error => console.error('Error fetching search results:', error));
+    });
+
+    // Clear filters
+    clearFiltersBtn.addEventListener("click", function() {
+        titleFilter.value = "";
+        authorFilter.value = "";
+        sortBy.value = "title";
+        availabilityFilter.value = "all";
+        
+        // Trigger search with empty query to show all books
+        fetch(`/search_api`)
+        .then(res => res.json())
+        .then(data => {
+            let rows = "";
+            if (data.books.length === 0) {
+                rows = '<tr><td colspan="4" class="text-center">No books found.</td></tr>';
+            } else {
+                data.books.forEach(book => {
+                    const borrowUrl = "/borrow_book/" + book.id;
+                    const reserveUrl = "/reserve_book/" + book.id;
+                    const wishlistUrl = "/add_to_wishlist/" + book.id;
+                    rows += `<tr>
+                        <td>${book.title}</td>
+                        <td><a href="#" class="author-link" data-author="${book.author}">${book.author}</a></td>
+                        <td>${book.available_copies}</td>
+                        <td>${book.available_copies > 0
+                            ? `<a href="${borrowUrl}" class="btn btn-success btn-sm">Borrow</a>`
+                            : `<a href="${reserveUrl}" class="btn btn-warning btn-sm">Reserve</a>`}
+                            <a href="${wishlistUrl}" class="btn btn-info btn-sm">Add to Wishlist</a></td>
+                    </tr>`;
+                });
+            }
+            bookList.innerHTML = rows;
+            
+            // Hide author books section when searching
+            authorBooksSection.style.display = 'none';
+        })
+        .catch(error => console.error('Error fetching search results:', error));
+    });
+
+    // Add click event to author names to show books by the same author
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('author-link')) {
+            e.preventDefault();
+            const author = e.target.getAttribute('data-author');
+            showBooksByAuthor(author);
+        }
+    });
+
+    function showBooksByAuthor(author) {
+        authorName.textContent = author;
+        authorBooksSection.style.display = 'block';
+        
+        // Fetch books by the same author
+        fetch(`/search_api?author=${encodeURIComponent(author)}`)
+        .then(res => res.json())
+        .then(data => {
+            let rows = "";
+            if (data.books.length === 0) {
+                rows = '<tr><td colspan="3" class="text-center">No books found by this author.</td></tr>';
+            } else {
+                data.books.forEach(book => {
+                    const borrowUrl = "/borrow_book/" + book.id;
+                    const reserveUrl = "/reserve_book/" + book.id;
+                    const wishlistUrl = "/add_to_wishlist/" + book.id;
+                    rows += `<tr>
+                        <td>${book.title}</td>
+                        <td>${book.available_copies}</td>
+                        <td>${book.available_copies > 0
+                            ? `<a href="${borrowUrl}" class="btn btn-success btn-sm">Borrow</a>`
+                            : `<a href="${reserveUrl}" class="btn btn-warning btn-sm">Reserve</a>`}
+                            <a href="${wishlistUrl}" class="btn btn-info btn-sm">Add to Wishlist</a></td>
+                    </tr>`;
+                });
+            }
+            authorBooksList.innerHTML = rows;
+        })
+        .catch(error => console.error('Error fetching books by author:', error));
+    }
+</script>
+{% endblock %}

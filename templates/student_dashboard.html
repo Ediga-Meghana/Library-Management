@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% set background = 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b' %}
+{% block content %}
+<header class="text-center py-4 bg-primary text-white">
+    <h1>Welcome to Library Management System</h1>
+    <p class="lead">Logged in as: {{ regno }}</p>
+</header>
+<main class="container text-center">
+    <p class="welcome-message lead">Manage your library activities easily from here.</p>
+    <div class="d-flex flex-wrap justify-content-center gap-3 mb-4">
+        <a href="{{ url_for('search_books') }}" class="btn btn-primary btn-lg flex-fill">Borrow Book</a>
+        <a href="{{ url_for('return_book') }}" class="btn btn-warning btn-lg flex-fill">Return Book</a>
+        <a href="{{ url_for('check_books') }}" class="btn btn-info btn-lg flex-fill">Check My Books</a>
+        <a href="{{ url_for('borrowing_history') }}" class="btn btn-secondary btn-lg flex-fill">Borrowing History</a>
+        <a href="{{ url_for('my_reservations') }}" class="btn btn-success btn-lg flex-fill">My Reservations</a>
+        <a href="{{ url_for('wishlist') }}" class="btn btn-info btn-lg flex-fill">My Wishlist</a>
+        <a href="{{ url_for('reading_analytics') }}" class="btn btn-dark btn-lg flex-fill">Reading Analytics</a>
+        <a href="{{ url_for('social') }}" class="btn btn-primary btn-lg flex-fill">Social Library</a>
+        
+    </div>
+    
+    {% if total_fine is not none %}
+    <div class="mt-4">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h4>💰 Active Fines</h4>
+            </div>
+            <div class="card-body">
+                <h5>Total Fine: ₹{{ total_fine }}</h5>
+                {% if total_fine >= 1000 %}
+                <div class="alert alert-danger">
+                    <strong>Warning:</strong> Your fine has reached ₹1000. You cannot borrow any more books until the fine is paid.
+                </div>
+                {% endif %}
+                <div class="d-flex flex-wrap gap-3 mt-3">
+                    <a href="{{ url_for('my_fines') }}" class="btn btn-primary">View All Fines</a>
+                    
+                    {% if total_fine > 0 %}
+                    <a href="{{ url_for('my_fines') }}" class="btn btn-success">Pay Fines</a>
+                    {% else %}
+                    <button class="btn btn-secondary" disabled>No Fine Due</button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if recommended_books %}
+    <div class="mt-5">
+        <h3>📚 Recommended for You</h3>
+        <div class="row">
+            {% for book in recommended_books %}
+            <div class="col-md-6 col-lg-4 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ book.title }}</h5>
+                        <p class="card-text">by {{ book.author }}</p>
+                        <p class="card-text">Available copies: {{ book.available_copies }}</p>
+                        {% if book.available_copies > 0 and can_borrow %}
+                        <a href="{{ url_for('borrow_book', book_id=book.id) }}" class="btn btn-success btn-sm">Borrow</a>
+                        {% elif not can_borrow %}
+                        <button class="btn btn-secondary btn-sm" disabled>Cannot Borrow</button>
+                        {% else %}
+                        <a href="{{ url_for('reserve_book', book_id=book.id) }}" class="btn btn-warning btn-sm">Reserve</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <a href="{{ url_for('logout') }}" class="btn btn-outline-danger mt-4">Log Out</a>
+</main>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% set background = 'https://images.unsplash.com/photo-1507842217343-583bb7270b66' %}
+{% block content %}
+<header class="text-center py-4 text-white" style="background-color: rgba(0,0,0,0.6);">
+    <h1>📊 Admin Dashboard</h1>
+    <p class="lead">Welcome, {{ current_admin_email }}!</p>
+</header>
+
+<div class="container my-4">
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+            <h5 class="mb-0">
+                <i class="fas fa-chart-line me-2"></i>Books Borrowed Per Month (Last 6 Months)
+            </h5>
+        </div>
+        <div class="card-body">
+            <canvas id="booksPerMonthChart" height="100"></canvas>
+        </div>
+    </div>
+
+    <div class="d-flex flex-wrap justify-content-center gap-3 mb-4">
+        <a href="{{ url_for('borrowed_books') }}" class="btn btn-warning btn-lg flex-fill">📖 Borrowed Books (Active)</a>
+        <a href="{{ url_for('registered_students') }}" class="btn btn-info btn-lg flex-fill">👨‍🎓 Registered Students</a>
+        <a href="{{ url_for('all_books') }}" class="btn btn-primary btn-lg flex-fill">📚 All Books in Library</a>
+        <a href="{{ url_for('library_statistics') }}" class="btn btn-success btn-lg flex-fill">📊 Library Statistics</a>
+        <a href="{{ url_for('admin_fines') }}" class="btn btn-danger btn-lg flex-fill">💰 Student Fines</a>
+        <a href="{{ url_for('admin_reservations') }}" class="btn btn-info btn-lg flex-fill">📚 Book Reservations</a>
+        <a href="{{ url_for('admin_password_resets') }}" class="btn btn-secondary btn-lg flex-fill">🔑 Password Reset Requests</a>
+        <a href="{{ url_for('send_reminders') }}" class="btn btn-danger btn-lg flex-fill">✉️ Send Due Date Reminders</a>
+    </div>
+
+    <div class="text-center mb-4">
+        <a href="{{ url_for('add_book') }}" class="btn btn-primary btn-lg">➕ Add Book</a>
+    </div>
+
+    {% if is_super_admin %}
+    <div class="text-center mb-4">
+        <a href="{{ url_for('admin_management') }}" class="btn btn-dark btn-lg">⚙️ Admin Management</a>
+    </div>
+    {% endif %}
+
+    <div class="text-center mt-5">
+        <a href="{{ url_for('logout') }}" class="btn btn-outline-dark">🚪 Logout</a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Books per month chart
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('booksPerMonthChart').getContext('2d');
+        
+        // Define chart data as JSON string
+        const chartDataString = '{{ books_per_month | tojson | safe }}';
+        const chartData = JSON.parse(chartDataString);
+        
+        // Extract labels and data from the chartData
+        const labels = chartData.map(function(item) { return item[0]; });
+        const data = chartData.map(function(item) { return item[1]; });
+        
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Books Borrowed',
+                    data: data,
+                    backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                    borderColor: 'rgba(52, 152, 219, 1)',
+                    borderWidth: 2,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

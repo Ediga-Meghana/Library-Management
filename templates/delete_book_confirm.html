@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% set background = 'https://images.unsplash.com/photo-1524985069026-dd778a71c7b4' %}
+{% block content %}
+<div class="card">
+    <h2>📖 Delete Copies of "{{ book.title }}"</h2>
+    <p class="lead"><strong>Available Copies:</strong> {{ book.available_copies }}</p>
+
+    <form method="POST">
+        <label for="copies_to_delete" class="d-block text-start mb-2">How many copies to delete?</label>
+        <input type="number" name="copies_to_delete" class="form-control" min="1" max="{{ book.available_copies }}" required>
+        <button type="submit" class="btn btn-danger w-100 mt-3">Delete</button>
+    </form>
+
+    <a href="{{ url_for('admin_panel') }}" class="back-link mt-3">⬅️ Back to Admin Panel</a>
+</div>
+{% endblock %}

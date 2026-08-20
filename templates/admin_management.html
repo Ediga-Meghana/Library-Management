@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% set background = 'https://images.unsplash.com/photo-1507842217343-583bb7270b66' %}
+{% block content %}
+<header class="text-center py-4 text-white" style="background-color: rgba(0,0,0,0.6);">
+    <h1>Admin Management</h1>
+    <p class="lead">Manage admin accounts.</p>
+</header>
+<div class="container my-4">
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Current Admins</h5>
+        </div>
+        <div class="card-body">
+            {% if admins %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for admin in admins %}
+                    <tr>
+                        <td>{{ admin.email }}{% if admin.email in super_admin_emails %} <span class="badge bg-primary">Super Admin</span>{% endif %}</td>
+                        <td>
+                            {% if admin.email == current_admin_email %}
+                            <span class="text-muted">Current Admin</span>
+                            {% elif admin.email in super_admin_emails %}
+                            <span class="text-muted">Cannot Delete Super Admin</span>
+                            {% else %}
+                            <form action="{{ url_for('delete_admin_post', email=admin.email) }}" method="post" style="display: inline;">
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="text-center">No admins found.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Add New Admin</h5>
+        </div>
+        <div class="card-body">
+            <form action="{{ url_for('add_admin_post') }}" method="post">
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Admin</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Update Your Details</h5>
+        </div>
+        <div class="card-body">
+            <form action="{{ url_for('update_admin') }}" method="post">
+                <div class="mb-3">
+                    <label for="new_email" class="form-label">New Email</label>
+                    <input type="email" class="form-control" id="new_email" name="new_email" value="{{ current_admin_email }}" required>
+                </div>
+                <div class="mb-3">
+                    <label for="new_password" class="form-label">New Password</label>
+                    <input type="password" class="form-control" id="new_password" name="new_password" required>
+                </div>
+                <button type="submit" class="btn btn-warning">Update</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="text-center mt-3">
+        <a href="{{ url_for('admin_panel') }}" class="btn btn-secondary">Go Back to Admin Panel</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Update Book Copies</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 30px;
+            background: #f4f4f4;
+        }
+        .box {
+            background: white;
+            padding: 25px;
+            max-width: 500px;
+            margin: auto;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        }
+        h2 {
+            text-align: center;
+        }
+        input, button {
+            width: 100%;
+            padding: 14px;
+            margin: 12px 0;
+            border-radius: 6px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+        }
+        button:hover {
+            background: #388E3C;
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>📚 Add Copies for '{{ book.title }}'</h2>
+        <form method="POST">
+            <label>Available Copies: {{ book.available_copies }}</label><br><br>
+            <input type="number" name="copies" min="1" placeholder="No. of copies to add" required>
+            <button type="submit">Add Copies</button>
+        </form>
+    </div>
+</body>
+</html>

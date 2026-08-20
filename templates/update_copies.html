@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% set background = 'https://images.unsplash.com/photo-1524985069026-dd778a71c7b4' %}
+{% block content %}
+<div class="card">
+    <h2>📚 Add Copies for '{{ book.title }}'</h2>
+    <p class="lead">Available Copies: {{ book.available_copies }}</p>
+    <form method="POST">
+        <label for="copies" class="d-block text-start mb-2">No. of copies to add:</label>
+        <input type="number" name="copies" class="form-control" min="1" placeholder="No. of copies to add" required>
+        <button type="submit" class="btn btn-success w-100 mt-3">Add Copies</button>
+    </form>
+    <a href="{{ url_for('admin_panel') }}" class="back-link mt-3">← Back to Admin Panel</a>
+</div>
+{% endblock %}

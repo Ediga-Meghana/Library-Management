@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <h2>Confirm Delete Student</h2>
+    <p>Student <strong>{{ student.regno }}</strong> has active borrowed books:</p>
+    <ul>
+        {% for book in active_books %}
+        <li>{{ book.book_name }} (Borrowed on: {{ book.borrow_date.strftime('%Y-%m-%d') }}, Due: {{ book.due_date.strftime('%Y-%m-%d') }})</li>
+        {% endfor %}
+    </ul>
+    <p>Do you really want to delete this student and all their active borrowed books?</p>
+    <form method="POST" action="{{ url_for('delete_student_confirm', regno=student.regno) }}">
+        <input type="hidden" name="confirm" value="yes">
+        <button type="submit" name="confirm" value="yes" class="btn btn-danger">Confirm Delete</button>
+        <a href="{{ url_for('registered_students') }}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

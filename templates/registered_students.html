@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+<a href="{{ url_for('admin_panel') }}" class="btn btn-secondary" style="position: fixed; top: 90px; left: 10px; z-index: 1050;">Go Back to Admin Panel</a>
+    <h1 class="text-center mb-4">Registered Students</h1>
+    <div class="search-bar mb-4">
+        <input type="text" id="searchInput" class="form-control" placeholder="Search by Reg No or Email" onkeyup="filterTable()">
+        <button onclick="clearSearch()" class="btn btn-secondary">Clear</button>
+    </div>
+    <table id="studentsTable" class="table table-striped">
+        <thead>
+            <tr>
+                <th>Reg No</th>
+                <th>Email</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+            <tr>
+                <td>{{ student.regno }}</td>
+                <td>{{ student.email }}</td>
+                <td>
+                    <a href="{{ url_for('view_record', regno=student.regno) }}" class="btn btn-info btn-sm">View Records</a>
+                    <form method="POST" action="{{ url_for('delete_student_confirm', regno=student.regno) }}" style="display:inline;" onsubmit="return confirmDelete('{{ student.regno }}');">
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+<div class="text-center mt-4">
+</div>
+
+<script>
+    function filterTable() {
+        var input, filter, table, tr, td, i, j, txtValue, shouldShow;
+        input = document.getElementById("searchInput");
+        filter = input.value.toLowerCase();
+        table = document.getElementById("studentsTable");
+        tr = table.getElementsByTagName("tr");
+
+        for (i = 1; i < tr.length; i++) {
+            tr[i].style.display = "none";
+            td = tr[i].getElementsByTagName("td");
+            shouldShow = false;
+            for (j = 0; j < 2; j++) {
+                if (td[j]) {
+                    txtValue = td[j].textContent || td[j].innerText;
+                    if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                        shouldShow = true;
+                        break;
+                    }
+                }
+            }
+            if (shouldShow) {
+                tr[i].style.display = "";
+            }
+        }
+    }
+    function clearSearch() {
+        document.getElementById("searchInput").value = "";
+        filterTable();
+    }
+</script>
+
+<script>
+function confirmDelete(regno) {
+    // Check if student has active borrowed books by calling an API or embedding data
+    // For simplicity, we will ask for confirmation always with the message
+    return confirm("This student may have books to be returned. Do you confirm to delete student " + regno + "?");
+}
+</script>
+</div>
+{% endblock %}

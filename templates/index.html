@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% set background = 'https://images.unsplash.com/photo-1524995997946-a1c2e315a42f' %}
+{% block content %}
+<div class="hero-section">
+    <h1>📖 Welcome to Smart Library</h1>
+    <p>Your personal library management system — Borrow. Return. Manage. On Time.</p>
+    <div class="btn-group">
+        <a href="{{ url_for('student') }}" class="btn btn-primary">Student Portal</a>
+        <a href="{{ url_for('admin') }}" class="btn btn-info">Admin Login</a>
+    </div>
+</div>
+{% endblock %}

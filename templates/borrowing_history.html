@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% set background = 'https://images.unsplash.com/photo-1507842217343-583bb7270b66' %}
+{% block content %}
+<div class="container">
+    <h1 class="text-center mb-4">Borrowing History for {{ regno }}</h1>
+    {% if books %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Book Name</th>
+                <th>Borrow Date</th>
+                <th>Due Date</th>
+                <th>Return Date</th>
+                <th>Status</th>
+                <th>Rating</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for book in books %}
+            <tr>
+                <td>{{ book.book_name }}</td>
+                <td>{{ book.borrow_date.strftime('%Y-%m-%d') }}</td>
+                <td>{{ book.due_date.strftime('%Y-%m-%d') }}</td>
+                <td>{{ book.actual_return_date.strftime('%Y-%m-%d') if book.actual_return_date else 'Not Returned' }}</td>
+                <td>
+                    {% if book.actual_return_date %}
+                        <span class="status-returned">Returned</span>
+                    {% elif book.due_date < today_date %}
+                        <span class="status-overdue">Overdue</span>
+                    {% else %}
+                        <span class="status-borrowed">Borrowed</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if book.actual_return_date %}
+                        <!-- Rating form for returned books -->
+                        <form method="POST" action="{{ url_for('rate_book', borrowed_book_id=book.id) }}" class="rating-form">
+                            <div class="rating-stars">
+                                {% for i in range(1, 6) %}
+                                    <input type="radio" name="rating" value="{{ i }}" id="star{{ book.id }}-{{ i }}" 
+                                           {% if book.id in book_ratings and book_ratings[book.id].rating == i %}checked{% endif %}>
+                                    <label for="star{{ book.id }}-{{ i }}">★</label>
+                                {% endfor %}
+                            </div>
+                            <textarea name="review" placeholder="Write your review..." class="form-control mt-2" rows="2">{{ book_ratings[book.id].review if book.id in book_ratings else '' }}</textarea>
+                            <button type="submit" class="btn btn-primary btn-sm mt-2">Submit Rating</button>
+                        </form>
+                    {% else %}
+                        Not yet returned
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="text-center lead">No borrowing history found for {{ regno }}.</p>
+    {% endif %}
+    <a href="{{ url_for('student_dashboard') }}" class="back-link">Back to Dashboard</a>
+</div>
+
+<style>
+.rating-stars {
+    display: inline-flex;
+    flex-direction: row-reverse;
+}
+.rating-stars input[type="radio"] {
+    display: none;
+}
+.rating-stars label {
+    color: #ddd;
+    cursor: pointer;
+    font-size: 1.5em;
+    transition: color 0.2s;
+}
+.rating-stars label:hover,
+.rating-stars label:hover ~ label,
+.rating-stars input[type="radio"]:checked ~ label {
+    color: #ffc107;
+}
+</style>
+
+<script>
+// Auto-submit rating form when a star is clicked
+document.querySelectorAll('.rating-stars input[type="radio"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        this.form.submit();
+    });
+});
+</script>
+{% endblock %}

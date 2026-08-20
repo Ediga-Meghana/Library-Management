@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card">
+    <h2>Enter OTP</h2>
+    <form method="POST" id="otpForm">
+        <input type="text" name="otp" class="form-control" placeholder="Enter OTP" required>
+        <button type="submit" class="btn btn-primary w-100 mt-3">Verify OTP</button>
+    </form>
+    
+    <form method="POST" id="resendForm" class="mt-3">
+        <input type="hidden" name="resend_otp" value="1">
+        <button type="submit" class="btn btn-secondary w-100" id="resendBtn">
+            Resend OTP
+        </button>
+    </form>
+    
+    <div id="timerContainer" class="mt-3 text-center">
+        <div id="timerInfo" class="alert alert-info" style="display: none;">
+            <strong>Timer:</strong> <span id="timerText"></span>
+        </div>
+        <div id="progressContainer" class="progress mt-2" style="display: none; height: 20px;">
+            <div id="progressBar" class="progress-bar progress-bar-striped progress-bar-animated" 
+                 role="progressbar" style="width: 100%;"></div>
+        </div>
+        <div id="progressText" class="mt-1" style="display: none; font-size: 0.9em; color: #6c757d;">
+            Resending in <span id="progressTime"></span> seconds
+        </div>
+    </div>
+</div>
+
+<script>
+    // Get time left from Flask template
+    const timeLeft = parseInt("{{ time_left|default(0) }}", 10);
+    const totalWaitTime = 120; // 2 minutes in seconds
+    
+    // Update countdown display
+    function updateCountdown(seconds) {
+        const resendBtn = document.getElementById('resendBtn');
+        const timerInfo = document.getElementById('timerInfo');
+        const timerText = document.getElementById('timerText');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressText = document.getElementById('progressText');
+        const progressBar = document.getElementById('progressBar');
+        const progressTime = document.getElementById('progressTime');
+        
+        if (seconds > 0) {
+            resendBtn.disabled = true;
+            timerInfo.style.display = 'block';
+            progressContainer.style.display = 'block';
+            progressText.style.display = 'block';
+            
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            const timeDisplay = minutes > 0 ? `${minutes}m ${remainingSeconds}s` : `${remainingSeconds}s`;
+            
+            timerText.textContent = `You can resend OTP in ${timeDisplay}`;
+            progressTime.textContent = seconds;
+            
+            // Update progress bar width
+            const percentage = (seconds / totalWaitTime) * 100;
+            progressBar.style.width = `${percentage}%`;
+        } else {
+            resendBtn.disabled = false;
+            timerInfo.style.display = 'none';
+            progressContainer.style.display = 'none';
+            progressText.style.display = 'none';
+        }
+    }
+    
+    // Initialize countdown
+    let countdown = timeLeft;
+    updateCountdown(countdown);
+    
+    // Countdown timer
+    const timer = setInterval(() => {
+        if (countdown > 0) {
+            countdown--;
+            updateCountdown(countdown);
+        } else {
+            clearInterval(timer);
+        }
+    }, 1000);
+    
+    // Form submission handling
+    document.getElementById('resendForm').addEventListener('submit', function(e) {
+        if (countdown > 0) {
+            e.preventDefault();
+            alert('Please wait for the cooldown period to complete.');
+        }
+    });
+</script>
+{% endblock %}

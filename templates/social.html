@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h1 class="text-center mb-4">Social Library</h1>
+    <p class="text-center">See what your friends are reading</p>
+    
+    <!-- Currently Reading by Followed Students -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Currently Reading (From People You Follow)</h5>
+        </div>
+        <div class="card-body">
+            {% if borrowed_books %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Book Title</th>
+                                <th>Borrow Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for book in borrowed_books %}
+                                <tr>
+                                    <td>{{ book.regno }}</td>
+                                    <td>{{ book.book_name }}</td>
+                                    <td>{{ book.borrow_date.strftime('%Y-%m-%d') }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p>No one you're following is currently reading any books.</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- All Students -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>All Students</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Registration Number</th>
+                            <th>Following</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in all_students %}
+                            <tr>
+                                <td>{{ student.regno }}</td>
+                                <td>
+                                    {% set is_following = student.regno in following_regnos %}
+                                    {% if is_following %}
+                                        <span class="badge bg-success">Following</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Not Following</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if is_following %}
+                                        <a href="{{ url_for('unfollow', target_regno=student.regno) }}" class="btn btn-danger btn-sm">Unfollow</a>
+                                    {% else %}
+                                        <a href="{{ url_for('follow', target_regno=student.regno) }}" class="btn btn-primary btn-sm">Follow</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Followers -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Your Followers ({{ followers|length }})</h5>
+        </div>
+        <div class="card-body">
+            {% if followers %}
+                <ul class="list-group">
+                    {% for follower in followers %}
+                        <li class="list-group-item">{{ follower.follower_regno }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No one is following you yet.</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="text-center">
+        <a href="{{ url_for('student_dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+</div>
+{% endblock %}

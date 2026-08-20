@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% set background = 'https://images.unsplash.com/photo-1517404215738-15263e9f9178' %}
+{% block content %}
+<header class="text-center py-4 text-white" style="background-color: rgba(220,53,69,0.7);">
+    <h1>Pay Fine</h1>
+    <p class="lead">Pay your outstanding fine here.</p>
+</header>
+<div class="container my-4">
+    <div class="card mx-auto" style="max-width: 500px;">
+        <div class="card-body">
+            <h5 class="card-title text-center mb-4">Payment for Book: {{ book_name }}</h5>
+            <div class="alert alert-info text-center">
+                Your current outstanding fine is: <strong class="text-danger">₹{{ "%.2f"|format(fine.amount) }}</strong>
+            </div>
+            <div class="alert alert-warning text-center">
+                <strong>Minimum Payment Required:</strong> ₹{{ "%.2f"|format(min_payment) }} (20% of due amount)
+            </div>
+
+            <form action="{{ url_for('pay_fine', fine_id=fine.id) }}" method="post" id="payFineForm">
+                <div class="mb-3">
+                    <label for="pay_amount" class="form-label">Amount to Pay (Minimum: ₹{{ "%.2f"|format(min_payment) }})</label>
+                    <input type="number" class="form-control" id="pay_amount" name="pay_amount" step="0.01" min="{{ min_payment }}" max="{{ fine.amount }}" required>
+                    <div class="form-text">You must pay at least 20% of your outstanding fine amount.</div>
+                </div>
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-success btn-lg">Pay Now</button>
+                    <a href="{{ url_for('my_fines') }}" class="btn btn-secondary mt-2">Cancel</a>
+                </div>
+            </form>
+            <script>
+            document.getElementById('payFineForm').addEventListener('submit', function(e) {
+                var amount = document.getElementById('pay_amount').value;
+                var minAmount = parseFloat('{{ min_payment }}');
+                if (!amount || isNaN(amount) || parseFloat(amount) <= 0) {
+                    alert('Please enter a valid amount to pay.');
+                    e.preventDefault();
+                    return false;
+                }
+                if (parseFloat(amount) < minAmount) {
+                    alert('Payment amount must be at least ₹' + minAmount.toFixed(2) + ' (20% of due).');
+                    e.preventDefault();
+                    return false;
+                }
+                if (!confirm('Are you sure you want to pay ₹' + parseFloat(amount).toFixed(2) + '?')) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
+            </script>
+        </div>
+    </div>
+</div>
+{% endblock %}

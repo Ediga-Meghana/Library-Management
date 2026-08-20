@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% set background = 'https://images.unsplash.com/photo-1524985069026-dd778a71c7b4' %}
+{% block content %}
+<div class="card">
+    <h2>✏️ Edit Due Date for "{{ book.book_name }}"</h2>
+    <p class="lead">Current Due Date: {{ book.due_date.strftime('%Y-%m-%d') }}</p>
+    <form method="POST">
+        <label for="new_due" class="d-block text-start mb-2">New Due Date:</label>
+        <input type="date" name="new_due" class="form-control" required>
+        <button type="submit" class="btn btn-primary w-100 mt-3">Update Due Date</button>
+    </form>
+    <a href="{{ url_for('admin_panel') }}" class="back-link mt-3">← Back to Admin Panel</a>
+</div>
+{% endblock %}

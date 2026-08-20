@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% set background = 'https://images.unsplash.com/photo-1519681393784-d120267933ba' %}
+{% block content %}
+<div class="card">
+    <h2>📖 Student Sign Up</h2>
+    <form method="POST">
+        <input type="text" name="regno" class="form-control" placeholder="Registration Number" required>
+        <input type="email" name="email" class="form-control" placeholder="RGMCET Email" required>
+        <input type="password" name="password" class="form-control" placeholder="Password" required minlength="8">
+        <button type="submit" class="btn btn-primary w-100 mt-3">Sign Up</button>
+    </form>
+    <a class="back-link" href="{{ url_for('student') }}">⬅️ Back to Login/Sign Up</a>
+</div>
+{% endblock %}

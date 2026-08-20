@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add New Book</title>
+    <style>
+        body {
+            background: linear-gradient(to right, #667eea, #764ba2);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 40px;
+            color: #333;
+        }
+        .container {
+            background: #fff;
+            max-width: 500px;
+            margin: auto;
+            padding: 30px;
+            border-radius: 14px;
+            box-shadow: 0 0 25px rgba(0,0,0,0.25);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #4A5568;
+        }
+        label {
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="number"],
+        button {
+            width: 100%;
+            padding: 14px;
+            margin: 12px 0;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+        }
+        button {
+            background-color: #5a67d8;
+            color: white;
+            border: none;
+            transition: background-color 0.3s ease;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #434190;
+        }
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #5a67d8;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>📚 Add New Book</h2>
+    <form method="POST">
+        <label>Book Title:</label>
+        <input type="text" name="title" placeholder="Enter book title" required>
+
+        <label>Author Name:</label>
+        <input type="text" name="author" placeholder="Enter author name" required>
+
+        <label>Available Copies:</label>
+        <input type="number" name="copies" placeholder="Enter no. of copies" min="1" required>
+
+        <button type="submit">Add Book 📖</button>
+    </form>
+
+    <a href="/admin_panel" class="back-link">← Back to Admin Panel</a>
+</div>
+
+</body>
+</html>

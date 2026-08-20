@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+<header class="text-center py-4 bg-dark text-white">
+    <h1>Book Reservations - Admin Panel</h1>
+</header>
+
+<div class="container my-4">
+    {% if reservations %}
+    <table class="table table-striped table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>Reservation ID</th>
+                <th>Student RegNo</th>
+                <th>Book Title</th>
+                <th>Reserved At</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reservation in reservations %}
+            <tr>
+                <td>{{ reservation.id }}</td>
+                <td>{{ reservation.regno }}</td>
+                <td>{{ reservation.book.title }}</td>
+                <td>{{ reservation.reserved_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td>
+                    {% if reservation.status == 'active' %}
+                        <span class="badge bg-success">Active</span>
+                    {% elif reservation.status == 'fulfilled' %}
+                        <span class="badge bg-primary">Fulfilled</span>
+                    {% elif reservation.status == 'cancelled' %}
+                        <span class="badge bg-secondary">Cancelled</span>
+                    {% else %}
+                        <span class="badge bg-light text-dark">{{ reservation.status.capitalize() }}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="alert alert-info">No reservations found.</div>
+    {% endif %}
+    <a href="{{ url_for('admin_panel') }}" class="btn btn-secondary mt-3">Back to Admin Panel</a>
+</div>
+{% endblock %}

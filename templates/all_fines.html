@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% set background = 'https://images.unsplash.com/photo-1517404215738-15263e9f9178' %}
+{% block content %}
+<header class="text-center py-4 text-white" style="background-color: rgba(220,53,69,0.7);">
+    <h1>All Fines</h1>
+    <p class="lead">View all your fines here.</p>
+</header>
+<div class="container my-4">
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title text-center">All Fines</h5>
+            {% if fine_details %}
+            <p class="lead text-center fw-bold text-danger">Total Due: ₹{{ "%.2f"|format(total_active_fine) }}</p>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Book Title</th>
+                        <th>Borrowed Date</th>
+                        <th>Due Date</th>
+                        <th>Days Overdue</th>
+                        <th>Fine Amount</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for fine in fine_details %}
+                    <tr>
+                        <td>{{ fine.book.book_name }}</td>
+                        <td>{{ fine.book.borrow_date }}</td>
+                        <td>{{ fine.book.due_date }}</td>
+                        <td>{{ fine.days_overdue }}</td>
+                        <td>₹{{ "%.2f"|format(fine.fine_amount) }}</td>
+                        <td><span class="badge bg-{{ 'danger' if fine.fine.status == 'active' else 'success' }}">{{ fine.fine.status }}</span></td>
+                        <td>
+                            {% if fine.fine.status == 'active' %}
+                            <a href="{{ url_for('pay_fine', fine_id=fine.fine.id) }}" class="btn btn-sm btn-success">Pay Fine</a>
+                            {% else %}
+                            -
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="text-center">You have no fines. Keep up the good work!</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

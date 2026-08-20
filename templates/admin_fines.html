@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% set background = 'https://images.unsplash.com/photo-1507842217343-583bb7270b66' %}
+{% block content %}
+<header class="text-center py-4 text-white" style="background-color: rgba(0,0,0,0.6);">
+    <h1>Student Fines & Dues</h1>
+    <p class="lead">Search and manage student fines.</p>
+</header>
+<div class="container my-4">
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Search for a Student's Fines</h5>
+            <form action="{{ url_for('admin_fines') }}" method="get" class="d-flex">
+                <input type="text" name="regno" class="form-control me-2" placeholder="Enter Registration Number" value="{{ search_regno }}">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+        </div>
+    </div>
+    
+    {% if student_record %}
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Fines for Student: {{ student_record.regno }}</h5>
+            {% if student_fines %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Borrowed Book ID</th>
+                        <th>Fine Amount</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                        <th>Updated At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for fine in student_fines %}
+                    <tr>
+                        <td>{{ fine.borrowed_book_id }}</td>
+                        <td>₹{{ "%.2f"|format(fine.amount) }}</td>
+                        <td>{{ fine.due_date }}</td>
+                        <td><span class="badge bg-{{ 'danger' if fine.status == 'active' else 'success' }}">{{ fine.status }}</span></td>
+                        <td>{{ fine.updated_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="text-center">This student has no fines on record.</p>
+            {% endif %}
+        </div>
+    </div>
+    {% else %}
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">All Active Fines</h5>
+            {% if student_fines %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Registration No.</th>
+                        <th>Book Name</th>
+                        <th>Fine Amount</th>
+                        <th>Due Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for fine in student_fines %}
+                    {% if fine.status == 'active' %}
+                    <tr>
+                        <td>{{ fine.regno }}</td>
+                        <td>{{ fine.borrowed_book.book_name }}</td>
+                        <td>₹{{ "%.2f"|format(fine.amount) }}</td>
+                        <td>{{ fine.due_date }}</td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="text-center">No active fines found for any student.</p>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="text-center mt-3">
+        <a href="{{ url_for('admin_panel') }}" class="btn btn-secondary">Go Back to Admin Panel</a>
+    </div>
+</div>
+{% endblock %}

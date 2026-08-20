@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h1 class="text-center mb-4">Reading Analytics</h1>
+    <p class="text-center">Reading insights for {{ regno }}</p>
+    
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">{{ total_books_borrowed }}</h5>
+                    <p class="card-text">Total Books Borrowed</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">{{ books_returned }}</h5>
+                    <p class="card-text">Books Returned</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">{{ books_currently_borrowed }}</h5>
+                    <p class="card-text">Currently Borrowed</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">{{ average_days_late }}</h5>
+                    <p class="card-text">Avg. Days Late</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Return Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Return Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <p>On-time Returns: <strong>{{ on_time_returns }}</strong></p>
+                    <p>Late Returns: <strong>{{ late_returns }}</strong></p>
+                    <div class="progress">
+                        <div class="progress-bar bg-success" role="progressbar" 
+                             style="width: {% if total_books_borrowed > 0 %}{{ (on_time_returns / total_books_borrowed * 100) }}{% else %}0{% endif %}%" 
+                             aria-valuenow="{{ on_time_returns }}" aria-valuemin="0" aria-valuemax="{{ total_books_borrowed }}">
+                            On-time
+                        </div>
+                        <div class="progress-bar bg-danger" role="progressbar" 
+                             style="width: {% if total_books_borrowed > 0 %}{{ (late_returns / total_books_borrowed * 100) }}{% else %}0{% endif %}%" 
+                             aria-valuenow="{{ late_returns }}" aria-valuemin="0" aria-valuemax="{{ total_books_borrowed }}">
+                            Late
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Favorite Authors -->
+        <div class="col-md-6 mb-3">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Top 5 Favorite Authors</h5>
+                </div>
+                <div class="card-body">
+                    {% if favorite_authors %}
+                        <ul class="list-group">
+                            {% for author, count in favorite_authors %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    {{ author }}
+                                    <span class="badge bg-primary rounded-pill">{{ count }}</span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No author data available.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Books Borrowed Per Month -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Books Borrowed Per Month (Last 12 Months)</h5>
+        </div>
+        <div class="card-body">
+            <canvas id="booksPerMonthChart" height="100"></canvas>
+        </div>
+    </div>
+    
+    <div class="text-center">
+        <a href="{{ url_for('student_dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Books per month chart
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('booksPerMonthChart').getContext('2d');
+        const chartData = {{ books_per_month | tojson }};
+        
+        // Extract labels and data from the chartData
+        const labels = chartData.map(function(item) { return item[0]; });
+        const data = chartData.map(function(item) { return item[1]; });
+        
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Books Borrowed',
+                    data: data,
+                    backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                    borderColor: 'rgba(52, 152, 219, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

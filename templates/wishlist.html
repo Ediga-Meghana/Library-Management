@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <h1 class="text-center mb-4">My Wishlist</h1>
+    
+    {% if wishlist_books %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Book Title</th>
+                <th>Author</th>
+                <th>Available Copies</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in wishlist_books %}
+            <tr>
+                <td>{{ item.book.title }}</td>
+                <td>{{ item.book.author }}</td>
+                <td>{{ item.book.available_copies }}</td>
+                <td>
+                    {% if item.is_available %}
+                        <span class="status-available">Available</span>
+                    {% else %}
+                        <span class="status-not-available">Not Available</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if item.is_available and not item.is_reserved %}
+                        <a href="{{ url_for('borrow_book', book_id=item.book.id) }}" class="btn btn-success btn-sm">Borrow</a>
+                    {% elif not item.is_reserved %}
+                        <a href="{{ url_for('reserve_book', book_id=item.book.id) }}" class="btn btn-warning btn-sm">Reserve</a>
+                    {% elif item.is_reserved %}
+                        <span class="text-muted">Reserved</span>
+                    {% endif %}
+                    <a href="{{ url_for('remove_from_wishlist', wishlist_item_id=item.item.id) }}" class="btn btn-danger btn-sm">Remove</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="text-center lead">Your wishlist is empty.</p>
+    <p class="text-center">
+        <a href="{{ url_for('search_books') }}" class="btn btn-primary">Search for Books</a>
+    </p>
+    {% endif %}
+    
+    <a href="{{ url_for('student_dashboard') }}" class="back-link">Back to Dashboard</a>
+</div>
+
+<style>
+.status-available {
+    color: #28a745;
+    font-weight: bold;
+}
+.status-not-available {
+    color: #dc3545;
+    font-weight: bold;
+}
+</style>
+{% endblock %}

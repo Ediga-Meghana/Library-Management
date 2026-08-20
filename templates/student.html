@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% set background = 'https://images.unsplash.com/photo-1529070538774-1843cb3265df' %}
+{% block content %}
+<div class="hero-section">
+    <h1>Welcome to Student Portal</h1>
+    <div class="btn-group">
+        <a href="{{ url_for('index') }}" class="btn btn-outline-light">Home</a>
+        <a href="{{ url_for('student_signup') }}" class="btn btn-warning">Sign Up</a>
+<a href="{{ url_for('student_login') }}" class="btn btn-primary">Log In</a>
+    </div>
+</div>
+{% endblock %}
